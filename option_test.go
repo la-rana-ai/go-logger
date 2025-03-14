@@ -1,8 +1,8 @@
 package logger
 
 import (
+	"github.com/la-rana-ai/go-logger/mock"
 	"io"
-	"la-rana-ai/go-logger/mock"
 	"reflect"
 	"testing"
 )

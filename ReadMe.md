@@ -141,7 +141,7 @@ package main
 import (
     "context"
     "github.com/google/uuid"
-    "la-rana-ai/go-logger"
+    "github.com/la-rana-ai/go-logger"
 )
 
 func main() {

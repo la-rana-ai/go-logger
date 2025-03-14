@@ -3,7 +3,7 @@ package logger
 import (
 	"context"
 	"github.com/google/uuid"
-	"la-rana-ai/go-logger/mock"
+	"github.com/la-rana-ai/go-logger/mock"
 	"log"
 	"regexp"
 	"testing"
