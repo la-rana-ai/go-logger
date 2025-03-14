@@ -84,10 +84,10 @@ log.Warning(ctx, "Message")
 Сообщение состоит из 3 параметров
 
 * ctx - контекст запроса или же работающего процесса. В контексте передаётся переменная x-request-id (идентификатор
-лога) и user-agent (имя того, кто породил выполнение данного процесса).
+  лога) и user-agent (имя того, кто породил выполнение данного процесса).
 * message - непосредственно сообщение в данном логе
 * []context - элементы для описания того контекста непосредственного события, которые способствовали созданию лог
-сообщения
+  сообщения
 
 #### 1.2 Настройка
 
@@ -97,41 +97,41 @@ log.Warning(ctx, "Message")
 
 * channel name - имя канала логирования
 * структуру интерфейса InterfaceOption (Для простоты предлагается стандартная структура Option). Данный интерфейс
-содержит:
+  содержит:
 *
-* Output (string) - имя стандартного канала вывода, или имя файла для записи сообщений данного канала
+    * Output (string) - имя стандартного канала вывода, или имя файла для записи сообщений данного канала
 *
-* Format (InterfaceFormat) - формат вывода. Есть 2 варианта, FormatPlain для вывода данных через форматированную
-строку, и FormatJSON ждя вывода данных через формат JSON
+    * Format (InterfaceFormat) - формат вывода. Есть 2 варианта, FormatPlain для вывода данных через форматированную
+      строку, и FormatJSON ждя вывода данных через формат JSON
 *
-* MinimalLevel (InterfaceLevel) - минимальный уровень логирования. В канале идёт запись всех сообщений этого уровня
-логирования, а так же сообщения с меньшим кодом.
+    * MinimalLevel (InterfaceLevel) - минимальный уровень логирования. В канале идёт запись всех сообщений этого уровня
+      логирования, а так же сообщения с меньшим кодом.
 *
-* Flags (InterfaceFlags) - структура набора флагов. Для удобства существует структура OptionFlags.
+    * Flags (InterfaceFlags) - структура набора флагов. Для удобства существует структура OptionFlags.
 *
+    *
+        * Date - выводить ли дату в логе
 *
-* Date - выводить ли дату в логе
+    *
+        * Time - выводить ли в логе время
 *
+    *
+        * Microseconds - выводить ли в логе наносекунды. Работает, если стоит флаг Time
 *
-* Time - выводить ли в логе время
+    *
+        * LongFile - выводить ли адрес файла и строку, где произошел вызов лога
 *
+    *
+        * ShortFile - выводить ли имя файла и строку, где произошел вызов лога. Перекрывает параметр LongFile
 *
-* Microseconds - выводить ли в логе наносекунды. Работает, если стоит флаг Time
+    *
+        * Utc - Выводить ли время, приводя его к часовому поясу utc
 *
+    *
+        * MsgPrefix - Выводить ли префикс/имя канала
 *
-* LongFile - выводить ли адрес файла и строку, где произошел вызов лога
-*
-*
-* ShortFile - выводить ли имя файла и строку, где произошел вызов лога. Перекрывает параметр LongFile
-*
-*
-* Utc - Выводить ли время, приводя его к часовому поясу utc
-*
-*
-* MsgPrefix - Выводить ли префикс/имя канала
-*
-*
-* StdFlags - выставляет флаги Date и Time
+    *
+        * StdFlags - выставляет флаги Date и Time
 
 ### 2 Пример
 
@@ -139,35 +139,35 @@ log.Warning(ctx, "Message")
 package main
 
 import (
-"context"
-"github.com/google/uuid"
-"la-rana-ai/go-logger"
+    "context"
+    "github.com/google/uuid"
+    "la-rana-ai/go-logger"
 )
 
 func main() {
-ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
-log, _ := logger.New("testChannel", &logger.Option{
-Format:       logger.FormatPlain,
-MinimalLevel: logger.Notice,
-Output:       logger.STDOUT,
-Flags: &logger.OptionFlags{
-Date:         true,
-Time:         true,
-Microseconds: true,
-LongFile:     true,
-ShortFile:    false,
-Utc:          true,
-MsgPrefix:    true,
-StdFlags:     true,
-},
-})
-log.Debug(ctx, "этот сообщение не будет записано")
-log.Notice(ctx, "а это сообщение будет записано")
-log.Notice(ctx, "сообщение с контекстом", struct {
-Name string
-}{
-Name: "John Doe",
-})
+    ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
+    log, _ := logger.New("testChannel", &logger.Option{
+        Format:       logger.FormatPlain,
+        MinimalLevel: logger.Notice,
+        Output:       logger.STDOUT,
+        Flags: &logger.OptionFlags{
+            Date:         true,
+            Time:         true,
+            Microseconds: true,
+            LongFile:     true,
+            ShortFile:    false,
+            Utc:          true,
+            MsgPrefix:    true,
+            StdFlags:     true,
+        },
+    })
+    log.Debug(ctx, "этот сообщение не будет записано")
+    log.Notice(ctx, "а это сообщение будет записано")
+    log.Notice(ctx, "сообщение с контекстом", struct {
+        Name string
+    }{
+        Name: "John Doe",
+    })
 }
 
 ```
