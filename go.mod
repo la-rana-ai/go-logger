@@ -1,4 +1,4 @@
-module la-rana-ai/go-logger
+module github.com/la-rana-ai/go-logger
 
 go 1.24.0
 
