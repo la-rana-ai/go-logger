@@ -1,155 +1,115 @@
-# Логгер
+# Logger
 
-Пакет `Logger` реализует чуть более сложный вариант журналирования, чем пакет `log`, по сути являясь его надстройкой.
-Помимо стандартного вывода сообщения в поток, данный пакет позволяет выводить данные в json, а так же связывается с
-файлами вывода по их имени, а не по открытому соединению.
-Помимо этого работа данного пакета ограничивается журналированием сообщения, без дополнительных действий вроде
-`os.Exit(1)`, а так же данный логгер имеет больше видов сообщений, нежели пакет `log`
+The `Logger` package implements a more advanced logging system compared to the `log` package, essentially serving as its extension.
 
-### 1. Спецификация
-
-#### 1.1 Основы
-
-Предоставляет в Interface восемь методов записи журналов на восьми
-уровнях [RFC 5424](https://datatracker.ietf.org/doc/html/rfc5424#section-6.2.1)
-
-* Emergency (0) - система не может использоваться
-
-```Go
-log, _ := logger.New("channelName", nil)
-ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
-log.Emergency(ctx, "Message about error")
-```
-
-* Alert (1) - действие должно быть предпринято немедленно
-
-```Go
-log, _ := logger.New("channelName", nil)
-ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
-log.Alert(ctx, "Message about error")
-```
-
-* Critical (2) - критические условия работы программы
-
-```Go
-log, _ := logger.New("channelName", nil)
-ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
-log.Critical(ctx, "Message about error")
-```
-
-* Error (3) - программа работает с ошибками
-
-```Go
-log, _ := logger.New("channelName", nil)
-ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
-log.Error(ctx, "Message about error")
-```
-
-* Warning (4) - сообщение требует внимание, но работа в рамках приемлемого
-
-```Go
-log, _ := logger.New("channelName", nil)
-ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
-log.Warning(ctx, "Message")
-```
-
-* Notice (5) - нормальное, но важное состояние
-
-```Go
-log, _ := logger.New("channelName", nil)
-ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
-log.Notice(ctx, "Message")
-```
-
-* Info (6) - информационные сообщения
-
-```Go
-log, _ := logger.New("channelName", nil)
-ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
-log.Warning(ctx, "Message")
-```
-
-* Debug (7) - сообщения уровня отладки
-
-```Go
-log, _ := logger.New("channelName", nil)
-ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
-log.Warning(ctx, "Message")
-```
+In addition to standard message output, this package allows:
+- Outputting data in JSON format.
+- Associating with output files by their names rather than open connections.
+- Restricting its operation to logging messages only, without additional actions like `os.Exit(1)`.
+- Providing more types of messages compared to the `log` package.
 
 ---
 
-#### 1.2 Сообщение
+## 1. Specification
 
-Сообщение состоит из 3 параметров
+### 1.1 Basics
 
-* ctx - контекст запроса или же работающего процесса. В контексте передаётся переменная x-request-id (идентификатор
-  лога) и user-agent (имя того, кто породил выполнение данного процесса).
-* message - непосредственно сообщение в данном логе
-* []context - элементы для описания того контекста непосредственного события, которые способствовали созданию лог
-  сообщения
+The package provides an Interface with eight methods for logging messages at eight levels, as defined in [RFC 5424](https://datatracker.ietf.org/doc/html/rfc5424#section-6.2.1):
 
-#### 1.2 Настройка
-
-Подразумевается, что для каждого модуля программы будет использоваться свой канал записи логов. Так же каждый канал
-настраивается отдельно, и может иметь свои параметры.
-При создании канала мы должны указать
-
-* channel name - имя канала логирования
-* структуру интерфейса InterfaceOption (Для простоты предлагается стандартная структура Option). Данный интерфейс
-  содержит:
-*
-    * Output (string) - имя стандартного канала вывода, или имя файла для записи сообщений данного канала
-*
-    * Format (InterfaceFormat) - формат вывода. Есть 2 варианта, FormatPlain для вывода данных через форматированную
-      строку, и FormatJSON ждя вывода данных через формат JSON
-*
-    * MinimalLevel (InterfaceLevel) - минимальный уровень логирования. В канале идёт запись всех сообщений этого уровня
-      логирования, а так же сообщения с меньшим кодом.
-*
-    * Flags (InterfaceFlags) - структура набора флагов. Для удобства существует структура OptionFlags.
-*
-    *
-        * Date - выводить ли дату в логе
-*
-    *
-        * Time - выводить ли в логе время
-*
-    *
-        * Microseconds - выводить ли в логе наносекунды. Работает, если стоит флаг Time
-*
-    *
-        * LongFile - выводить ли адрес файла и строку, где произошел вызов лога
-*
-    *
-        * ShortFile - выводить ли имя файла и строку, где произошел вызов лога. Перекрывает параметр LongFile
-*
-    *
-        * Utc - Выводить ли время, приводя его к часовому поясу utc
-*
-    *
-        * MsgPrefix - Выводить ли префикс/имя канала
-*
-    *
-        * StdFlags - выставляет флаги Date и Time
-
-### 2 Пример
-
-```Go
-package main
-
-import (
-    "context"
-    "github.com/google/uuid"
-    "github.com/la-rana-ai/go-logger"
-)
-
-func main() {
+1. **Emergency (0)** — the system is unusable.
+    ```go
+    log, _ := logger.New("channelName", nil)
     ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
-    log, _ := logger.New("testChannel", &logger.Option{
-        Format:       logger.FormatPlain,
+    log.Emergency(ctx, "Message about error")
+    ```
+
+2. **Alert (1)** — immediate action is required.
+    ```go
+    log, _ := logger.New("channelName", nil)
+    ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
+    log.Alert(ctx, "Message about error")
+    ```
+
+3. **Critical (2)** — critical conditions in program operation.
+    ```go
+    log, _ := logger.New("channelName", nil)
+    ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
+    log.Critical(ctx, "Message about error")
+    ```
+
+4. **Error (3)** — the program is operating with errors.
+    ```go
+    log, _ := logger.New("channelName", nil)
+    ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
+    log.Error(ctx, "Message about error")
+    ```
+
+5. **Warning (4)** — attention is required, but the operation is within acceptable bounds.
+    ```go
+    log, _ := logger.New("channelName", nil)
+    ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
+    log.Warning(ctx, "Message")
+    ```
+
+6. **Notice (5)** — important messages within normal operation.
+    ```go
+    log, _ := logger.New("channelName", nil)
+    ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
+    log.Notice(ctx, "Message")
+    ```
+
+7. **Info (6)** — informational messages.
+    ```go
+    log, _ := logger.New("channelName", nil)
+    ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
+    log.Info(ctx, "Message")
+    ```
+
+8. **Debug (7)** — debug-level messages.
+    ```go
+    log, _ := logger.New("channelName", nil)
+    ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
+    log.Debug(ctx, "Message")
+    ```
+
+---
+
+### 1.2 Message
+
+A log message consists of three parameters:
+- **ctx** — the context of a request or running process (contains variables like `x-request-id` — log identifier, and `user-agent` — the name of the source that initiated the process).
+- **message** — the actual log message.
+- **[]context** — additional elements describing the event context that led to the log creation.
+
+---
+
+### 1.3 Configuration
+
+Each program module uses its own logging channel, which is configured individually.
+
+When creating a channel, the following parameters must be set:
+- **Channel Name**: a unique name for the channel.
+- **InterfaceOption**: a structure containing channel settings, such as:
+    - **Output**: the name of the standard output channel or file.
+    - **Format**: output format (`FormatPlain` for formatted strings or `FormatJSON` for JSON).
+    - **MinimalLevel**: the minimum logging level.
+    - **Flags**: formatting options (`OptionFlags`), including:
+        - Date, Time, Microseconds — output of date, time, and nanoseconds.
+        - LongFile, ShortFile — output of the full file path or just the file name.
+        - Utc — converting the time to UTC time zone.
+        - MsgPrefix — displaying the prefix or channel name.
+        - StdFlags — enabling Date and Time flags.
+
+---
+
+## 2. Example Usage
+
+```go
+ctx := context.WithValue(context.Background(), "x-request-id", uuid.New())
+log, _ := logger.New("testChannel", &logger.Option{
+        Format: &logger.FormatPlain,
         MinimalLevel: logger.Notice,
-        Output:       logger.STDOUT,
+        Output: logger.STDOUT,
         Flags: &logger.OptionFlags{
             Date:         true,
             Time:         true,
@@ -161,13 +121,11 @@ func main() {
             StdFlags:     true,
         },
     })
-    log.Debug(ctx, "этот сообщение не будет записано")
-    log.Notice(ctx, "а это сообщение будет записано")
-    log.Notice(ctx, "сообщение с контекстом", struct {
-        Name string
-    }{
-        Name: "John Doe",
-    })
-}
-
+log.Debug(ctx, "this message will not be logged")
+log.Notice(ctx, "this message will be logged")
+log.Notice(ctx, "message with context", struct {
+    Name string
+}{
+    Name: "John Doe",
+})
 ```
